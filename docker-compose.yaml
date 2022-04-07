@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  gruposervices_backend: 
+    build: ./backend
+    command: npm run dev 
+    ports: 
+      - '3001:3001'
+    networks:
+    - gruposervices_network
+    volumes:
+      - ./backend:/backend
+    depends_on:
+      - db
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+  gruposervices_frontend: 
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    networks:
+    - gruposervices_network
+    volumes: 
+    - ./frontend:/frontend
+  db:
+    image: mysql:5.7
+    volumes:
+      - gruposervices_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: gruposervices
+      MYSQL_USER: gruposervices
+      MYSQL_PASSWORD: gruposervices
+    networks:
+      - gruposervices_network
+    ports:
+      - '8000:3306'
+networks:
+  gruposervices_network:
+volumes:
+  gruposervices_data:
