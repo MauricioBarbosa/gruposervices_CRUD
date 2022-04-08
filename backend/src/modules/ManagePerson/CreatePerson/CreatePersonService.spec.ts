@@ -11,6 +11,10 @@ beforeAll(async () =>{
 
 describe("Testing CreatePersonService with prisma", ()=>{
 
+    beforeEach(async ()=>{
+        await personPrismaRepository.deleteAllPersons();
+    })
+
     it("Should throw an name length is too small error", async ()=>{
         await expect(sut.run({
             name: "Jos",
@@ -57,7 +61,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
         await expect(sut.run({
             name: "José",
             address: "L",
-            cpf: "12345678910", 
+            cpf: "12345678910123", 
             gender: "Man",
             nick: "",
             observations: "", 

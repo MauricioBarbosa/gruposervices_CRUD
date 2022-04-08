@@ -4,23 +4,29 @@ import { IPersonRepository } from './../../IPersonRespository';
 
 export class PersonPrismaRepository implements IPersonRepository{
 
-    async deleteAllPersons(): Promise<void> {
-        
-    }
-
     async save(person: Person): Promise<Person> {
         const savedPerson = await prisma.person.create({
             data: {
-                cpf: person.cpf,
-                name: person.name, 
-                nick: person.nick,
-                address: person.address,
-                gender: person.gender, 
-                observations: person.observations,
-                phone: person.phone
+                ...person
             }
         })
 
         return new Person(savedPerson);
+    }
+
+    async checkIfExists(cpf: string): Promise<Boolean> {
+        const foundPerson = await prisma.person.findFirst({
+            where: {
+                cpf: cpf
+            }
+        });
+
+        console.log(foundPerson);
+
+        return !!foundPerson;
+    }
+
+    async deleteAllPersons(): Promise<void> {
+        await prisma.person.deleteMany({});
     }
 }
