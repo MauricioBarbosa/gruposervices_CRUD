@@ -4,6 +4,10 @@
   "description": "Project created to Grupo Services - Curitiba/PR",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
+    "test:clearCache": "jest --clearCache",
+    "test:silent": "jest --watchAll --silent --noStackTrace",
+    "test:coverage": "jest --coverage --silent --noStackTrace",
     "dev": "nodemon --legacy-watch server.ts"
   },
   "author": "Maurício Barbosa",
