@@ -20,7 +20,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
             name: "Jos",
             address: "L",
             cpf: "4", 
-            gender: "Man",
+            gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
@@ -34,7 +34,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
             name: "G2cdHbRaOO59pwPKUAOcePax3pmmD86CA3UzIZMiBISpqS7djU9ZExeIq9Z1b0WGbX8XiN4dQlkHTo9Zn",
             address: "L",
             cpf: "4", 
-            gender: "Man",
+            gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
@@ -48,7 +48,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
             name: "José",
             address: "L",
             cpf: "123", 
-            gender: "Man",
+            gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
@@ -62,7 +62,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
             name: "José",
             address: "L",
             cpf: "12345678910123", 
-            gender: "Man",
+            gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
@@ -76,7 +76,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
             name: "José",
             address: "L",
             cpf: "123.456.789-10", 
-            gender: "Man",
+            gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
@@ -86,7 +86,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
             name: "José",
             address: "L",
             cpf: "123.456.789-10", 
-            gender: "Man",
+            gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
@@ -101,7 +101,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
             name: "José",
             address: "L",
             cpf: "123.456.789-10", 
-            gender: "Man",
+            gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
@@ -109,7 +109,7 @@ describe("Testing CreatePersonService with prisma", ()=>{
             id: expect.any(Number), 
             address: "L",
             cpf: "123.456.789-10", 
-            gender: "Man",
+            gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
