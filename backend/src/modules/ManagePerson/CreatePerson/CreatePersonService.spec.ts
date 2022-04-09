@@ -43,17 +43,73 @@ describe("Testing CreatePersonService with prisma", ()=>{
         ); 
     })
 
-    it("Should throw a cpf length is invalid error", async ()=>{
+    it("Should throw a nick is too big error", async ()=>{
         await expect(sut.run({
             name: "José",
             address: "L",
-            cpf: "123", 
+            cpf: "4", 
+            gender: "Male",
+            nick: "AGEjzIF8C5yHKOVedDBRcKl6AT6PJm8QvIRV1ZChiUzg6PjTZUtKIAfOLKshwzqvpiHIPBsMXhtUtwxLa",
+            observations: "", 
+            phone: ""
+        })).rejects.toEqual(
+            new Error("Nick name is too big")
+        ); 
+    })
+
+    it("Should throw an address is too big error", async ()=>{
+        await expect(sut.run({
+            name: "José",
+            address: "4jLSt6uMeHQA4NFoRvjvTf4X2mVIZ3ggFTJ8i7iJH26KnHM9HJ8Y9Fdn7uQ1JfkpsVHx9WaRj03h6HbkA",
+            cpf: "4", 
             gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
         })).rejects.toEqual(
-            new Error("invalid cpf length")
+            new Error("Address is too big")
+        ); 
+    })
+
+    it("Should throw a gender is too big error", async ()=>{
+        await expect(sut.run({
+            name: "José",
+            address: "L",
+            cpf: "4", 
+            gender: "hgfCW9iNdFVi4FfKfzL5s",
+            nick: "",
+            observations: "", 
+            phone: ""
+        })).rejects.toEqual(
+            new Error("Gender is too big")
+        ); 
+    })
+
+    it("Should throw an observation is too big error", async ()=>{
+        await expect(sut.run({
+            name: "José",
+            address: "L",
+            cpf: "4", 
+            gender: "Male",
+            nick: "",
+            observations: "8BbnjCjCDqE3CFA73plXjLymTx0kKGns3NKzKRy9OsxWljt9ZTbSlnQaMSjyg1zd4stOivkpfn5zuGG0zB8UGQfOor4o0lhEW4YOt", 
+            phone: ""
+        })).rejects.toEqual(
+            new Error("Observation is too big")
+        ); 
+    })
+
+    it("Should throw a phone is too big error", async ()=>{
+        await expect(sut.run({
+            name: "José",
+            address: "L",
+            cpf: "4", 
+            gender: "Male",
+            nick: "",
+            observations: "", 
+            phone: "HvRqVqobB0K9qr2i"
+        })).rejects.toEqual(
+            new Error("Phone number is too big")
         ); 
     })
 
@@ -71,30 +127,19 @@ describe("Testing CreatePersonService with prisma", ()=>{
         ); 
     })
 
-    it("Shouldn't store a person with the same cpf", async ()=>{
-        await sut.run({
-            name: "José",
-            address: "L",
-            cpf: "123.456.789-10", 
-            gender: "Male",
-            nick: "",
-            observations: "", 
-            phone: ""
-        });
-
+    it("Should throw a invalid cpf error with letters", async ()=>{
         await expect(sut.run({
             name: "José",
             address: "L",
-            cpf: "123.456.789-10", 
+            cpf: "abc.def.ghi-ji", 
             gender: "Male",
             nick: "",
             observations: "", 
             phone: ""
         })).rejects.toEqual(
-            new Error("This person already exists")
+            new Error("Invalid CPF")
         ); 
     })
-
 
     it("Should store a Person", async ()=>{
         await expect(sut.run({

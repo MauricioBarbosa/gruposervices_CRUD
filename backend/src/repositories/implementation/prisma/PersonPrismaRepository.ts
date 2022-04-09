@@ -24,18 +24,6 @@ export class PersonPrismaRepository implements IPersonRepository{
         })
     }
 
-    async checkIfExists(cpf: string): Promise<Boolean> {
-        const foundPerson = await prisma.person.findFirst({
-            where: {
-                cpf: cpf
-            }
-        });
-
-        console.log(foundPerson);
-
-        return !!foundPerson;
-    }
-
     async findById(id: number): Promise<Person | null> {
         const foundPerson = await prisma.person.findUnique({
             where: {
@@ -76,6 +64,21 @@ export class PersonPrismaRepository implements IPersonRepository{
                 ...person
             })
         })
+    }
+
+    async update(person: Person): Promise<Person> {
+        const updatedPerson = await prisma.person.update({
+            where: {
+                id: person.id
+            }, 
+            data: {
+                ...person
+            }
+        })
+
+        return new Person({
+            ...updatedPerson
+        });
     }
 
     async deletePerson(id: number): Promise<Person> {

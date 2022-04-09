@@ -1,18 +1,17 @@
-import { Person } from './../../../entities/Person';
+import { Person } from '../../../entities/Person';
 import { IPersonRepository } from './../../../repositories/IPersonRespository';
-import { ICreatePersonDTO } from './ICreatePersonDTO';
+import { IUpdatePersonDTO } from './IUpdatePersonDTO';
 
-export class CreatePersonService{
+export class UpdatePersonService{
     constructor(private personRepository: IPersonRepository){}
 
-    async run(person: ICreatePersonDTO): Promise<Person>{
-
+    async run(person: IUpdatePersonDTO): Promise<Person>{
         if(person.name.length < 4){
-            throw new Error("Person Name is too small");
+            throw new Error("name is too small")
         }
 
         if(person.name.length > 80){
-            throw new Error("Person Name is too big");
+            throw new Error("name is too big")
         }
 
         if(person.nick.length > 80){
@@ -39,7 +38,13 @@ export class CreatePersonService{
             throw new Error("Invalid CPF");
         }
 
-        return await this.personRepository.save(new Person({
+        const personExist = await this.personRepository.findById(person.id);
+
+        if(!personExist){
+            throw new Error("This person doesn't exist")
+        }
+
+        return await this.personRepository.update(new Person({
             ...person
         }));
     }
