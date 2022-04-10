@@ -1,19 +1,23 @@
 import express from 'express';
+import { resolve } from 'path';
 
 class App{
     public app: express.Application; 
 
     constructor(app: express.Application){
         this.app = app; 
-        this.routes(); 
+        this.routes();
+        this.middlewares(); 
     }
 
     private routes(){
-        this.app.use(
-            '/', (req, res) => {
-                return res.status(200).json("App funcionando...")
-            }
-        )
+    
+    }
+
+    private middlewares(){
+        this.app.use(express.urlencoded({extended: true}))
+        this.app.use(express.json());
+        this.app.use(express.static(resolve(__dirname, 'uploads', 'pictures'))); 
     }
 }
 

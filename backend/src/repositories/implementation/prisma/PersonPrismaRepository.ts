@@ -28,6 +28,9 @@ export class PersonPrismaRepository implements IPersonRepository{
         const foundPerson = await prisma.person.findUnique({
             where: {
                 id: id
+            },
+            include: {
+                picture: true
             }
         }); 
 
@@ -41,7 +44,11 @@ export class PersonPrismaRepository implements IPersonRepository{
     }
 
     async findAll(): Promise<Person[]> {
-        const persons = await prisma.person.findMany(); 
+        const persons = await prisma.person.findMany({
+            include: {
+                picture: true
+            }
+        }); 
 
         return persons.map((person)=>{
             return new Person({
@@ -56,6 +63,9 @@ export class PersonPrismaRepository implements IPersonRepository{
                 name: {
                     startsWith: name
                 }
+            },
+            include:{
+                picture: true
             }
         })
         

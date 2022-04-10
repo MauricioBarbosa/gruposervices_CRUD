@@ -2,11 +2,12 @@ import { Person } from './../../../entities/Person';
 import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
 import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
 import { UpdatePictureService } from "./UpdatePictureService";
-import { PictureProviderImplementation } from '../../../providers/deletepicture/DeleteFileImplementation';
+import { PictureProviderImplementation } from '../../../providers/deletepicture/PictureProviderImplementation';
+import { Picture } from '../../../entities/Picture';
 
 let picturePrismaRepository: PicturePrismaRepository;
 let personPrismaRepository: PersonPrismaRepository;
-let deletePictureProvider: PictureProviderImplementation
+let pictureProviderImplementation: PictureProviderImplementation
 let sut: UpdatePictureService;
 
 /**
@@ -16,11 +17,11 @@ let sut: UpdatePictureService;
 beforeAll(async () =>{
     personPrismaRepository = new PersonPrismaRepository();
     picturePrismaRepository = new PicturePrismaRepository();
-    deletePictureProvider = new PictureProviderImplementation();
+    pictureProviderImplementation = new PictureProviderImplementation();
     sut = new UpdatePictureService(
         picturePrismaRepository, 
         personPrismaRepository, 
-        deletePictureProvider
+        pictureProviderImplementation
     );
 })
 
@@ -52,11 +53,11 @@ describe("Testing UpdatePictureService with prisma", ()=>{
             phone: "(15) 3422-6322"
         }))
 
-        await picturePrismaRepository.save({
+        await picturePrismaRepository.save(new Picture({
             filename: "1643077746437_18240.jpg",
             originalname: "belma_dolores.jpg",
             person_id: person1.id
-        })
+        }))
     })
 
     it("Should throw a filename is too small error", async ()=>{

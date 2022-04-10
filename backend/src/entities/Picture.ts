@@ -1,9 +1,11 @@
 export class Picture{
     public readonly person_id: number; 
-    filename: string; 
-    originalname: string; 
+    public filename: string; 
+    public originalname: string; 
+    public url: string
 
-    constructor(props: Picture){
+
+    constructor(props: Partial<Picture>){
         Object.assign(this, props);
     }
 }
