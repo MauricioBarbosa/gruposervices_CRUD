@@ -81,7 +81,7 @@ describe("Testing DeletePersonService with Prisma", ()=>{
     })
 
     it("Should delete a user with his pic", async () => {
-        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'checkIfExists');
         await sut.run(personWithPicture.id); 
         expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })

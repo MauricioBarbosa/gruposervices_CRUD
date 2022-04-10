@@ -18,6 +18,7 @@ describe("Testing StorePictureService with prisma", ()=>{
     let person: Person;
 
     beforeAll(async ()=>{
+        await picturePrismaRepository.deleteAllPictures();
         await personPrismaRepository.deleteAllPersons();
         person = await personPrismaRepository.save(new Person({
             address: "Rua Dos Sabiás, Nº 142, São Paulo, Brasil",

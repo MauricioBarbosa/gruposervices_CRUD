@@ -1,12 +1,15 @@
 import { Person } from "../../../entities/Person";
 import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
+import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
 import { UpdatePersonService } from "./UpdatePersonService";
 
 let personPrismaRepository: PersonPrismaRepository;
+let picturePrismaRepository: PicturePrismaRepository;
 let sut: UpdatePersonService;
 
 beforeAll(async () =>{
     personPrismaRepository = new PersonPrismaRepository();
+    picturePrismaRepository = new PicturePrismaRepository();
     sut = new UpdatePersonService(personPrismaRepository);
 })
 
@@ -14,6 +17,7 @@ describe("Testing UpdatePersonService with prisma", ()=>{
     let person: Person; 
     
     beforeAll(async ()=>{
+        await picturePrismaRepository.deleteAllPictures();
         await personPrismaRepository.deleteAllPersons();
         person = await personPrismaRepository.save(new Person({
             address: "",

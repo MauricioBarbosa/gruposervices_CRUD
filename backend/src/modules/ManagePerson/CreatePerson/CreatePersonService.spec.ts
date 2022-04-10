@@ -1,17 +1,21 @@
 import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
+import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
 import { CreatePersonService } from "./CreatePersonService";
 
 let personPrismaRepository: PersonPrismaRepository;
+let picturePrismaRepository: PicturePrismaRepository;
 let sut: CreatePersonService;
 
 beforeAll(async () =>{
     personPrismaRepository = new PersonPrismaRepository();
+    picturePrismaRepository = new PicturePrismaRepository();
     sut = new CreatePersonService(personPrismaRepository);
 })
 
 describe("Testing CreatePersonService with prisma", ()=>{
 
     beforeEach(async ()=>{
+        await picturePrismaRepository.deleteAllPictures();
         await personPrismaRepository.deleteAllPersons();
     })
 
