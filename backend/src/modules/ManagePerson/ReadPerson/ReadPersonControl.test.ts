@@ -82,3 +82,120 @@ describe("Testing ReadPersonControl by ID", ()=>{
     })
 })
 
+describe("Testing ReadPersonControl by name", ()=>{
+    let persons: Array<Person>; 
+    let beneditaPicture: Picture; 
+
+    beforeAll(async ()=>{
+        await picturePrismaRepository.deleteAllPictures();
+        await personPrismaRepository.deleteAllPersons();
+
+        persons = [
+            new Person({
+                address: "",
+                cpf: "663.473.726-65",
+                gender: "Female", 
+                name: "Benedita da Silva",
+                nick: "Benedita",
+                observations: "None",
+                phone: "+55 9555328494"
+            }),
+            new Person({
+                address: "",
+                cpf: "646.139.870-83",
+                gender: "Female", 
+                name: "Belma Dolores Alves",
+                nick: "Dolores",
+                observations: "None",
+                phone: "(12) 3717-9117"
+            }),
+            new Person({
+                address: "",
+                cpf: "051.157.570-01",
+                gender: "Male", 
+                name: "Mauro Vilas Boas Sodré",
+                nick: "Mauro",
+                observations: "None",
+                phone: "(16) 3744-5032"
+            }),
+            new Person({
+                address: "",
+                cpf: "825.878.050-66",
+                gender: "Female", 
+                name: "Marie Castagne Felix",
+                nick: "Felix",
+                observations: "None",
+                phone: "(12)3456-6547"
+            })
+        ]
+
+        await personPrismaRepository.createMany(persons);
+
+        const beneditaPerson = await (await personPrismaRepository.findByName("Benedita da Silva")).at(0); 
+
+        beneditaPicture = await picturePrismaRepository.save(new Picture({
+            filename: "1643077746437_18223.jpg",
+            originalname: "file.jpg",
+            person_id: beneditaPerson.id
+        }))
+    })
+
+    it("Should return all registered persons", async ()=>{
+        const response = await request(app).get("/person/").send({})
+
+        expect(response.status).toBe(200); 
+        expect(response.body).toHaveLength(persons.length);
+    })
+
+    it("Should return length equal 2: Persons whose name starts with B", async ()=>{
+        const response = await request(app).get("/person/").send({
+            src: "B"
+        }); 
+
+        expect(response.status).toBe(200); 
+        expect(response.body).toHaveLength(2);
+    })
+
+    it("Should return persons whose name starts with B", async ()=>{
+        const response = await request(app).get("/person/").send({
+            src: "B"
+        });
+
+        expect(response.status).toBe(200); 
+        expect(response.body).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    id: expect.any(Number),
+                    createdAt: expect.any(String), 
+                    updatedAt: expect.any(String),
+                    address: "",
+                    cpf: "646.139.870-83",
+                    gender: "Female", 
+                    name: "Belma Dolores Alves",
+                    nick: "Dolores",
+                    observations: "None",
+                    phone: "(12) 3717-9117"
+                }),
+                expect.objectContaining({
+                    id: expect.any(Number),
+                    createdAt: expect.any(String), 
+                    updatedAt: expect.any(String), 
+                    address: "",
+                    cpf: "663.473.726-65",
+                    gender: "Female", 
+                    name: "Benedita da Silva",
+                    nick: "Benedita",
+                    observations: "None",
+                    phone: "+55 9555328494", 
+                    picture: {
+                        filename: "1643077746437_18223.jpg",
+                        originalname: "file.jpg",
+                        person_id: expect.any(Number),
+                        url: appConfig.pictureUrl + '/' + beneditaPicture.filename
+                    }
+                })
+            ])
+        )
+    })
+})
+
