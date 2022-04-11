@@ -14,7 +14,7 @@ class App{
 
     private routes(){
         this.app.use(
-            '/person' , personRoutes
+            '/person/' , personRoutes
         )
     }
 

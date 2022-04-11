@@ -21,7 +21,19 @@ export class CreatePersonControl{
                 throw new Error("Name not informed")
             }
 
-            return response.status(200);
+            if(!cpf){
+                throw new Error("CPF not informed")
+            }
+
+            return response.status(200).json(await this.createPersonService.run({
+                address: address? address : "", 
+                cpf: cpf, 
+                gender: gender? gender: "", 
+                name: name, 
+                nick: nick? nick : "",
+                observations: observations? observations : "",
+                phone: phone ? phone : ""
+            }));
         } catch (error: any) {
             return response.status(400).json({
                 message: error.message
