@@ -1,19 +1,15 @@
 import app from "../../../../app"; 
 import request from "supertest"; 
 
-
 import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
 import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
-import { CreatePersonService } from "./CreatePersonService";
 
 let personPrismaRepository: PersonPrismaRepository;
 let picturePrismaRepository: PicturePrismaRepository;
-let sut: CreatePersonService;
 
 beforeAll(async () =>{
     personPrismaRepository = new PersonPrismaRepository();
     picturePrismaRepository = new PicturePrismaRepository();
-    sut = new CreatePersonService(personPrismaRepository);
 })
 
 describe("Testing CreatePersonControl", ()=>{

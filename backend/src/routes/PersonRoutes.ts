@@ -3,6 +3,7 @@ import { Router } from "express";
 
 import { createPersonFactory } from "../modules/ManagePerson/CreatePerson/CreatePersonFactory";
 import { updatePersonFactory } from './../modules/ManagePerson/UpdatePerson/UpdatePersonFactory';
+import { deletePersonFactory } from '../modules/ManagePerson/DeletePerson/DeletePersonFactory';
 
 const router = Router();
 
@@ -17,5 +18,9 @@ router.put("/:id", (request, response)=>{
 router.get("/", (request, response)=>{
     readPersonFactory().handle(request, response);
 })
+
+router.delete('/:id',(request, response)=>{
+    deletePersonFactory().handle(request, response);
+});
 
 export default router;
