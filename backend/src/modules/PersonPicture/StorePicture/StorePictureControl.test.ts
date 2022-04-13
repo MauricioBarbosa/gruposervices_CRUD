@@ -1,11 +1,13 @@
 import app from "../../../../app"; 
 import request from "supertest"; 
+import { resolve } from "path";
+import fs from 'fs/promises'
+
 import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
 import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
 import { PictureProviderImplementation } from "../../../providers/deletepicture/PictureProviderImplementation";
+
 import { Person } from "../../../entities/Person";
-import { resolve } from "path";
-import fs from 'fs/promises'
 import { Picture } from "../../../entities/Picture";
 
 
@@ -133,6 +135,4 @@ describe("testing StorePictureControl with multer", ()=>{
             originalname: "arquivo.jpg"
         })
     })
-
-    //testar também tamanho do arquivo
 })
