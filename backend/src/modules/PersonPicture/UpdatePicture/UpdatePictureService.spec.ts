@@ -25,7 +25,7 @@ beforeAll(async () =>{
     );
 })
 
-describe("Testing UpdatePictureService with prisma", ()=>{
+describe("Testing UpdatePictureService method run with prisma", ()=>{
 
     let person1: Person;
     let person2: Person; 
@@ -110,5 +110,19 @@ describe("Testing UpdatePictureService with prisma", ()=>{
             filename: "1643077746437_18223.jpg", 
             originalname: "Belma.jpeg"
         }))
+    })
+})
+
+describe("Testing UpdatePictureService service method deletePicture", ()=>{
+
+    beforeEach(()=>{
+        jest.clearAllMocks();
+    })
+
+    it("should delete a file", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
+        await sut.deletePicture("1643077831430_17809.jpg"); 
+
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 })

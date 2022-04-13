@@ -41,4 +41,8 @@ export class UpdatePictureService{
             ...picture
         }));
     }
+
+    async deletePicture(filename: string): Promise<void>{
+        await this.pictureProvider.delete(filename);
+    }
 }

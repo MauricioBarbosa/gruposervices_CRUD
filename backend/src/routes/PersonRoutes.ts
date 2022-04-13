@@ -1,7 +1,7 @@
-import { readPersonFactory } from './../modules/ManagePerson/ReadPerson/ReadPersonFactory';
 import { Router } from "express";
 
 import { createPersonFactory } from "../modules/ManagePerson/CreatePerson/CreatePersonFactory";
+import { readPersonFactory } from './../modules/ManagePerson/ReadPerson/ReadPersonFactory';
 import { updatePersonFactory } from './../modules/ManagePerson/UpdatePerson/UpdatePersonFactory';
 import { deletePersonFactory } from '../modules/ManagePerson/DeletePerson/DeletePersonFactory';
 

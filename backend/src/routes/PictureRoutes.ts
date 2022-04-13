@@ -1,8 +1,10 @@
-import app from '../../app';
-import request from 'supertest';
+import { Router } from "express";
+import { storePictureFactory } from "../modules/PersonPicture/StorePicture/StorePictureFactory";
 
-describe("Testing CreatePersonControl", ()=>{
-    it("Should create a new user", ()=>{
-        request(app).post('/')
-    })
+const router = Router();
+
+router.post("/:id", (request, response)=>{ 
+    storePictureFactory().handle(request, response);
 })
+
+export default router;

@@ -1,7 +1,8 @@
 import express from 'express';
 import { resolve } from 'path';
 
-import personRoutes from './src/routes/PersonRoutes'
+import personRoutes from './src/routes/PersonRoutes'; 
+import personPictureRoutes from './src/routes/PictureRoutes';
 
 class App{
     public app: express.Application; 
@@ -15,6 +16,9 @@ class App{
     private routes(){
         this.app.use(
             '/person/' , personRoutes
+        )
+        this.app.use(
+            '/person/picture/', personPictureRoutes
         )
     }
 
