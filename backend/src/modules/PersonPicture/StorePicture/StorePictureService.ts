@@ -30,7 +30,13 @@ export class StorePictureService{
             if(!person){
                 throw new Error("This person doesn't exist");
             }
-    
+            
+            const person_has_picture = await this.pictureRepository.findById(picture.person_id); 
+
+            if(person_has_picture){
+                throw new Error("This person has already a picture, try to update instead");
+            }
+
             return await this.pictureRepository.save(new Picture({
                 ...picture
             }));   

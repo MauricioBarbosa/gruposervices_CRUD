@@ -60,7 +60,12 @@ describe("Testing UpdatePictureService method run with prisma", ()=>{
         }))
     })
 
+    afterEach(()=>{
+        jest.clearAllMocks();
+    })
+
     it("Should throw a filename is too small error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
         await expect(sut.run({
             person_id: person1.id,
             filename: "164", 
@@ -68,9 +73,11 @@ describe("Testing UpdatePictureService method run with prisma", ()=>{
         })).rejects.toEqual(
             new Error("Filename is too small")
         )
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 
     it("Should throw a filename is too big error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
         await expect(sut.run({
             person_id: person1.id,
             filename: "Jlw6ZfceMgVWlSoPXhmdXH6FTPghPNmQemfQdMgmgPDxkdICP5Vo1bNBEj20Mg3rdHGZx6OIqP8TYfRWZtZVmk7ShHN9Inntib1qN", 
@@ -78,9 +85,23 @@ describe("Testing UpdatePictureService method run with prisma", ()=>{
         })).rejects.toEqual(
             new Error("Filename is too big")
         )
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
+    })
+
+    it("Should throw a originalname is too big error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
+        await expect(sut.run({
+            person_id: person1.id,
+            filename: "1643077746437_18240", 
+            originalname: "Jlw6ZfceMgVWlSoPXhmdXH6FTPghPNmQemfQdMgmgPDxkdICP5Vo1bNBEj20Mg3rdHGZx6OIqP8TYfRWZtZVmk7ShHN9Inntib1qN"
+        })).rejects.toEqual(
+            new Error("Originalname is too big")
+        );
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 
     it("Should throw person doesn't exist error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
         await expect(sut.run({
             person_id: person2.id + 1,
             filename: "1643077831430_17809.jpg", 
@@ -88,9 +109,11 @@ describe("Testing UpdatePictureService method run with prisma", ()=>{
         })).rejects.toEqual(
             new Error("This person doesn't exist")
         )
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 
     it("Should throw person doesn't have a picture error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
         await expect(sut.run({
             person_id: person2.id,
             filename: "1643077831430_17809.jpg", 
@@ -98,9 +121,11 @@ describe("Testing UpdatePictureService method run with prisma", ()=>{
         })).rejects.toEqual(
             new Error("This person doesn't have a picture")
         )
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 
     it("Should Update a picture", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
         await expect(sut.run({
             person_id: person1.id,
             filename: "1643077746437_18223.jpg", 
@@ -110,19 +135,14 @@ describe("Testing UpdatePictureService method run with prisma", ()=>{
             filename: "1643077746437_18223.jpg", 
             originalname: "Belma.jpeg"
         }))
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 })
 
-describe("Testing UpdatePictureService service method deletePicture", ()=>{
-
-    beforeEach(()=>{
-        jest.clearAllMocks();
-    })
-
-    it("should delete a file", async ()=>{
+describe("Testing UpdatePictureService deletePicture method", ()=>{
+    it("Should run method delete at least one time", async ()=>{
         const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
-        await sut.deletePicture("1643077831430_17809.jpg"); 
-
+        await sut.deletePicture('1649890852896_18880.jpg');
         expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 })

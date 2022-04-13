@@ -1,4 +1,3 @@
-import { ISingleFileHandlerProvider } from './../../../providers/ISingleFileHandlerProvider';
 import { Request, Response } from 'express';
 import { StorePictureService } from './StorePictureService'; 
 
@@ -22,6 +21,11 @@ export class StorePictureControl{
 
                 if(!request.file) {
                     throw new Error("No such file uploaded")
+                }
+
+                if(isNaN(+id)){
+                    await this.storePictureService.deletePicture(request.file.filename);
+                    throw new Error("ID is not a number")
                 }
 
                 return response.status(200).json(await this.storePictureService.run({

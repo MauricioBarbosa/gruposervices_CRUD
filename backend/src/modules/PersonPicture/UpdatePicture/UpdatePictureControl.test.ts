@@ -1,20 +1,20 @@
 import app from "../../../../app"; 
 import request from "supertest"; 
-import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
-import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
-import { PictureProviderImplementation } from "../../../providers/deletepicture/PictureProviderImplementation";
-import { Person } from "../../../entities/Person";
 import { resolve } from "path";
 import fs from 'fs/promises'
+
+import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
+import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
+import { PictureProviderImplementation } from '../../../providers/deletepicture/PictureProviderImplementation';
+import { Person } from "../../../entities/Person";
 import { Picture } from "../../../entities/Picture";
-
-
-const uploadPicFolder = resolve(__dirname, '..', '..', '..', '..', 'uploads', 'pictures');
-const fileTestPath = resolve(__dirname, '..', '..', '..', '..', 'img-test'); 
 
 let picturePrismaRepository: PicturePrismaRepository;
 let personPrismaRepository: PersonPrismaRepository;
-let pictureProviderImplementation: PictureProviderImplementation;
+let pictureProviderImplementation: PictureProviderImplementation
+
+const uploadPicFolder = resolve(__dirname, '..', '..', '..', '..', 'uploads', 'pictures');
+const fileTestPath = resolve(__dirname, '..', '..', '..', '..', 'img-test'); 
 
 beforeAll(async () =>{
     personPrismaRepository = new PersonPrismaRepository();
@@ -22,15 +22,15 @@ beforeAll(async () =>{
     pictureProviderImplementation = new PictureProviderImplementation();
 })
 
-describe("testing StorePictureControl with multer", ()=>{
-    let person: Person;
-    let personWithPicture: Person;
+describe("testing UpdatePictureControl with multer", ()=>{
+    let person1: Person;
+    let person2: Person; 
 
     beforeAll(async ()=>{
         await fs.readdir(uploadPicFolder).then((f) => Promise.all(f.map(e => pictureProviderImplementation.delete(e))))
         await picturePrismaRepository.deleteAllPictures();
         await personPrismaRepository.deleteAllPersons();
-        person = await personPrismaRepository.save(new Person({
+        person1 = await personPrismaRepository.save(new Person({
             address: "Rua Dos Sabiás, Nº 142, São Paulo, Brasil",
             cpf: "646.139.870-83",
             gender: "Female", 
@@ -40,26 +40,26 @@ describe("testing StorePictureControl with multer", ()=>{
             phone: "(12) 3717-9117"
         }));
 
-        personWithPicture = await personPrismaRepository.save(new Person({
+        person2 = await personPrismaRepository.save(new Person({
             address: "",
-            cpf: "663.473.726-65",
-            gender: "Female", 
-            name: "Benedita da Silva",
-            nick: "Benedita",
+            cpf: "518.800.600-60",
+            gender: "Male", 
+            name: "Micael Belchior Castilho",
+            nick: "Micael",
             observations: "None",
-            phone: "+55 9555328494"
-        })); 
+            phone: "(15) 3422-6322"
+        }))
 
         await picturePrismaRepository.save(new Picture({
-            filename: "182918391_1231431.jpg", 
-            originalname: "benedita.jpg",
-            person_id: personWithPicture.id
+            filename: "1643077746437_18240.jpg",
+            originalname: "belma_dolores.jpg",
+            person_id: person1.id
         }))
     })
 
-    it("Should throw an Uncompatible type error", async ()=>{
-        const txtFilePath = resolve(__dirname, '..', '..', '..', '..', 'img-test', 'teste.txt'); 
-        const response = await request(app).post(`/person/picture/${person.id}`).attach(
+    it("Should return an Uncompatible type error", async ()=>{
+        const txtFilePath = resolve(fileTestPath, 'teste.txt'); 
+        const response = await request(app).put(`/person/picture/${person1.id}`).attach(
             'picture', txtFilePath
         );
         expect(response.status).toBe(400);
@@ -68,8 +68,8 @@ describe("testing StorePictureControl with multer", ()=>{
         })
     })
 
-    it("Should throw a no such file uploaded", async ()=>{ 
-        const response = await request(app).post(`/person/picture/${person.id}`);
+    it("Should return a no such file uploaded", async ()=>{ 
+        const response = await request(app).put(`/person/picture/${person1.id}`);
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
             message: "No such file uploaded"
@@ -78,7 +78,7 @@ describe("testing StorePictureControl with multer", ()=>{
 
     it("Should return invalid id message", async()=>{
         const picturePath = resolve(fileTestPath, 'arquivo.jpg'); 
-        const response = await request(app).post(`/person/picture/josé`).attach(
+        const response = await request(app).put(`/person/picture/josé`).attach(
             'picture', picturePath
         );
         expect(response.status).toBe(400);
@@ -87,9 +87,9 @@ describe("testing StorePictureControl with multer", ()=>{
         })
     })
 
-    it("Should throw a originalname is too big error", async ()=>{
+    it("Should return a originalname is too big error", async ()=>{
         const bigFilePath = resolve(fileTestPath, 'Jlw6ZfceMgVWlSoPXhmdXH6FTPghPNmQemfQdMgmgPDxkdICP5Vo1bNBEj20Mg3rdHGZx6OIqP8TYfRWZtZVmk7ShHN9Inntib1qN.jpg'); 
-        const response = await request(app).post(`/person/picture/${person.id}`).attach(
+        const response = await request(app).put(`/person/picture/${person1.id}`).attach(
             'picture', bigFilePath
         );
         expect(response.status).toBe(400);
@@ -98,9 +98,9 @@ describe("testing StorePictureControl with multer", ()=>{
         })
     })
 
-    it("Should throw person doesn't exist error", async ()=>{
+    it("Should return person doesn't exist error", async ()=>{
         const picturePath = resolve(fileTestPath, 'arquivo.jpg'); 
-        const response = await request(app).post(`/person/picture/${person.id+2}`).attach(
+        const response = await request(app).put(`/person/picture/${person1.id+2}`).attach(
             'picture', picturePath
         );
         expect(response.status).toBe(400);
@@ -109,30 +109,27 @@ describe("testing StorePictureControl with multer", ()=>{
         })
     })
 
-    it("Should return a Person already has a picture try to update instead error", async ()=>{
-        const picturePath = resolve(fileTestPath, 'arquivo.jpg'); 
-        const response = await request(app).post(`/person/picture/${personWithPicture.id}`).attach(
+    it("Should return this person doesn't have a picture message", async ()=>{
+        const picturePath = resolve(fileTestPath, 'arquivo.jpg');
+        const response = await request(app).put(`/person/picture/${person2.id}`).attach(
             'picture', picturePath
-        );
-        
+        ); 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
-            message: "This person has already a picture, try to update instead"
+            message: "This person doesn't have a picture"
         })
     })
 
-    it("Should store a person", async ()=>{
+    it("Should update a picture", async ()=>{
         const picturePath = resolve(fileTestPath, 'arquivo.jpg'); 
-        const response = await request(app).post(`/person/picture/${person.id}`).attach(
+        const response = await request(app).put(`/person/picture/${person1.id}`).attach(
             'picture', picturePath
         );
         expect(response.status).toBe(200);
         expect(response.body).toEqual({
-            person_id: person.id,
+            person_id: person1.id,
             filename: expect.any(String), 
             originalname: "arquivo.jpg"
         })
     })
-
-    //testar também tamanho do arquivo
 })
