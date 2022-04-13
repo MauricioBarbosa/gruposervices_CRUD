@@ -2,10 +2,11 @@ import app from "../../../../app";
 import request from "supertest"; 
 import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
 import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
+import { PictureProviderImplementation } from "../../../providers/deletepicture/PictureProviderImplementation";
 import { Person } from "../../../entities/Person";
 import { resolve } from "path";
 import fs from 'fs/promises'
-import { PictureProviderImplementation } from "../../../providers/deletepicture/PictureProviderImplementation";
+
 
 const uploadPicFolder = resolve(__dirname, '..', '..', '..', '..', 'uploads', 'pictures');
 
