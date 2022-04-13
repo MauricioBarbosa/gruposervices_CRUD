@@ -2,18 +2,21 @@ import { Person } from './../../../entities/Person';
 import { PersonPrismaRepository } from "../../../repositories/implementation/prisma/PersonPrismaRepository";
 import { PicturePrismaRepository } from "../../../repositories/implementation/prisma/PicturePrismaRepository";
 import { StorePictureService } from "./StorePictureService";
+import { PictureProviderImplementation } from './../../../providers/deletepicture/PictureProviderImplementation';
 
 let picturePrismaRepository: PicturePrismaRepository;
 let personPrismaRepository: PersonPrismaRepository;
+let pictureProviderImplementation: PictureProviderImplementation;
 let sut: StorePictureService;
 
 beforeAll(async () =>{
     personPrismaRepository = new PersonPrismaRepository();
     picturePrismaRepository = new PicturePrismaRepository();
-    sut = new StorePictureService(picturePrismaRepository, personPrismaRepository);
+    pictureProviderImplementation = new PictureProviderImplementation();
+    sut = new StorePictureService(picturePrismaRepository, personPrismaRepository, pictureProviderImplementation);
 })
 
-describe("Testing StorePictureService with prisma", ()=>{
+describe("Testing StorePictureService run method with prisma", ()=>{
 
     let person: Person;
 
@@ -31,7 +34,12 @@ describe("Testing StorePictureService with prisma", ()=>{
         }));
     })
 
+    afterEach(()=>{
+        jest.clearAllMocks();
+    })
+
     it("Should throw a filename is too small error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
         await expect(sut.run({
             person_id: person.id,
             filename: "164", 
@@ -39,19 +47,35 @@ describe("Testing StorePictureService with prisma", ()=>{
         })).rejects.toEqual(
             new Error("Filename is too small")
         )
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 
     it("Should throw a filename is too big error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
         await expect(sut.run({
             person_id: person.id,
             filename: "Jlw6ZfceMgVWlSoPXhmdXH6FTPghPNmQemfQdMgmgPDxkdICP5Vo1bNBEj20Mg3rdHGZx6OIqP8TYfRWZtZVmk7ShHN9Inntib1qN", 
             originalname: "Belma.jpeg"
         })).rejects.toEqual(
             new Error("Filename is too big")
-        )
+        );
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
+    })
+
+    it("Should throw a originalname is too big error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
+        await expect(sut.run({
+            person_id: person.id,
+            filename: "1643077746437_18240", 
+            originalname: "Jlw6ZfceMgVWlSoPXhmdXH6FTPghPNmQemfQdMgmgPDxkdICP5Vo1bNBEj20Mg3rdHGZx6OIqP8TYfRWZtZVmk7ShHN9Inntib1qN"
+        })).rejects.toEqual(
+            new Error("Originalname is too big")
+        );
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 
     it("Should throw person doesn't exist error", async ()=>{
+        const deletePictureSpy = jest.spyOn(pictureProviderImplementation, 'delete');
         await expect(sut.run({
             person_id: person.id + 1,
             filename: "1643077746437_18240", 
@@ -59,6 +83,7 @@ describe("Testing StorePictureService with prisma", ()=>{
         })).rejects.toEqual(
             new Error("This person doesn't exist")
         )
+        expect(deletePictureSpy).toHaveBeenCalledTimes(1);
     })
 
     it("Should store a picture", async ()=>{
