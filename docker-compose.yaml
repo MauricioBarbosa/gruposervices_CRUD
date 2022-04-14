@@ -22,6 +22,8 @@ services:
     - gruposervices_network
     volumes: 
     - ./frontend:/frontend
+    environment:
+    - CHOKIDAR_USEPOLLING=true
   db:
     image: mysql:5.7
     volumes:

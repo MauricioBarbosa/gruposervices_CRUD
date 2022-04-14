@@ -6,7 +6,7 @@ COPY . .
 
 RUN npm install 
 
-RUN npm install nodemon -g
+RUN npx prisma migrate
 
 ENTRYPOINT npm run dev 
 
