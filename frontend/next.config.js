@@ -5,7 +5,9 @@ module.exports = {
     config.watchOptions = {
       poll: 1000,   // Check for changes every second
       aggregateTimeout: 300,   // delay before rebuilding
+      ignored: ['**/files/**/*.js', '**/node_modules', '**/.next'],
     };
+    
     return config;
   }
 };
