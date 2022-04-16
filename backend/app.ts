@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { resolve } from 'path';
 
 import personRoutes from './src/routes/PersonRoutes'; 
@@ -25,7 +26,17 @@ class App{
     private middlewares(){
         this.app.use(express.urlencoded({extended: true}))
         this.app.use(express.json());
-        this.app.use(express.static(resolve(__dirname, 'uploads', 'pictures'))); 
+        this.app.use(express.static(resolve(__dirname, 'uploads', 'pictures')));
+        this.app.use('*', cors({
+            origin: true,
+            optionsSuccessStatus: 200,
+            credentials: true,
+        }));
+        this.app.options('*', cors({
+            origin: true,
+            optionsSuccessStatus: 200,
+            credentials: true,
+        }));
     }
 }
 
