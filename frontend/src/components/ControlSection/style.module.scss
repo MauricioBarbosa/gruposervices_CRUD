@@ -1,9 +1,16 @@
+$small: 400px;
+
 .controlSection{
     height: 5vh;
+    min-height: 40px;
     width: 90%;
     margin-left: auto;
     margin-right: auto;
     display: flex;
     justify-content: flex-end;
     margin-bottom: 20px;
+
+    @media screen and (max-width: $small){
+        justify-content: center;
+    }   
 }

@@ -5,7 +5,7 @@ export default function Header(): JSX.Element{
     return(
         <AppBar position={"relative"}>
             <div className={style.logoSection}>
-                Grupo Services Crud - Maurício Barbosa
+                Grupo Services Crud
             </div>
         </AppBar>
     )

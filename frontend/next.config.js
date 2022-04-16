@@ -7,7 +7,11 @@ module.exports = {
       aggregateTimeout: 300,   // delay before rebuilding
       ignored: ['**/files/**/*.js', '**/node_modules', '**/.next'],
     };
-    
     return config;
+  },
+  images: {
+    domains: [
+      'observatoriodocinema.uol.com.br'
+    ]
   }
 };
