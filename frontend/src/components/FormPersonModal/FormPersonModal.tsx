@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import Image from 'next/image';
+import React from "react";
 
 import { Modal } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
@@ -11,11 +12,15 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import Snackbar from '@mui/material/Snackbar';
 import { useForm, Controller } from 'react-hook-form';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 import style from './style.module.scss';
 import CreatePersonData from "../../types/CreatePersonData";
 import { PersonContext } from "../../context/PersonContext";
+import { PictureContext } from "../../context/PictureContext";
+
 
 type FormPersonModalData = {
     open: boolean,
@@ -33,12 +38,22 @@ type IFormInputs = {
     picture: FileList
 }
 
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+    props,
+    ref,
+  ) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
+
 export default function FormPersonModal({open, handleClose} : FormPersonModalData):JSX.Element{
 
     const {register, handleSubmit, control, setError} = useForm<any>();
     const [ imageUrl, setImageUrl ] = useState<string>("");
+    const [ errorMessage, setErrorMessage ] = useState<string>("Erro ocorre");
+
     const [ loading, setLoading] = useState<boolean>(false);
     const { postPerson } = useContext(PersonContext); 
+    const { postPicture } = useContext(PictureContext);
 
     function checkImageSelected(){
         if(imageUrl){
@@ -68,17 +83,26 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
         observations,
         picture
     }: IFormInputs){
-        if(!/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(cpf)){
-            setError("cpf", {
-                message: "Invalid CPF format"
-            })
-        }
 
         setLoading(true);
 
         console.log("Fazendo requisição")
 
         try{
+
+            if(!/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(cpf)){
+                setError("cpf", {
+                    message: "Invalid CPF format"
+                })
+                return; 
+            }
+    
+            if(picture[0]){
+                if(picture[0].name.length > 100){
+                    throw new Error("picture name is too long")
+                }
+            }
+
             const { status, response } = await postPerson({
                 name,
                 cpf,
@@ -89,10 +113,32 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                 observations
             })
 
-            console.log({ status, response });
+            if(status === 400){
+                throw new Error(response.message);
+            }
+
+            console.log(response); 
+
+            if(picture[0]){
+                const formData = new FormData(); 
+                formData.append('picture', picture[0]); 
+
+                const responsePicture = await postPicture(
+                    response.id, 
+                    formData
+                ); 
+
+                if(responsePicture.status === 400){
+                    throw new Error(response.message);
+                }
+            }
+
             handleClose();
-        }catch(e: any){
-            console.log(e);
+        }catch(error: any){
+            setErrorMessage(error.message); 
+            setTimeout(() =>{
+                setErrorMessage(""); 
+            }, 6000);
         }
         setLoading(false);
     }
@@ -106,7 +152,17 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
             setImageUrl("");
     }
 
+    const handleCloseSnackBar = () =>{
+        setErrorMessage(""); 
+    }
+
     return(
+        <>
+        <Snackbar open={!!errorMessage} autoHideDuration={6000} onClose={handleCloseSnackBar}>
+        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
         <Modal
         open={open}
         onClose={handleClose}
@@ -353,5 +409,6 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
             </div>
         </div>
         </Modal>
+        </>
     )
 }

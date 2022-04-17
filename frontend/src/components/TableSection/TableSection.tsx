@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
 import style from './style.module.scss';
+import ReadPersonData from '../../types/ReadPersonData';
 
 
 const columns: GridColDef[] = [
@@ -102,15 +103,19 @@ const rows = [
     
 ]
 
-export default function TableSection():JSX.Element{
+type TableSectionProps = {
+    personList: Array<ReadPersonData>
+}
+
+export default function TableSection({personList}: TableSectionProps):JSX.Element{
     return(
         <div className={style.personTable}>
-                <DataGrid 
-                columns={columns}
-                rows={rows}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
-                />
+            <DataGrid 
+            columns={columns}
+            rows={rows}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            />
         </div>
     )
 }

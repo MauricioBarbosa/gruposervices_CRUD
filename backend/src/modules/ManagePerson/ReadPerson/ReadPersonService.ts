@@ -11,7 +11,7 @@ export class ReadPersonService{
             throw new Error("Person not found");
         }
 
-        person.picture.url = this.pictureUrl + '/' + person.picture.filename;
+        person.picture.url = this.pictureUrl + person.picture.filename;
 
         return person; 
     }
