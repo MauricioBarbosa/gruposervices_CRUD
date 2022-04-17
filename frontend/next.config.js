@@ -15,6 +15,7 @@ module.exports = {
     ]
   },
   env: {
-    BACKEND_URL: 'http://localhost:3001'
+    BACKEND_URL: 'http://localhost:3001', 
+    BACKEND_URL_CONTAINER: 'http://gruposervices_crud-gruposervices_backend-1:3001'
   }
 };
