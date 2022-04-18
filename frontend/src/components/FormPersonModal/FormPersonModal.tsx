@@ -47,9 +47,9 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 export default function FormPersonModal({open, handleClose} : FormPersonModalData):JSX.Element{
 
-    const {register, handleSubmit, control, setError} = useForm<any>();
+    const {register, handleSubmit, control, setError, setValue} = useForm<any>();
     const [ imageUrl, setImageUrl ] = useState<string>("");
-    const [ errorMessage, setErrorMessage ] = useState<string>("Erro ocorre");
+    const [ errorMessage, setErrorMessage ] = useState<string>("");
 
     const [ loading, setLoading] = useState<boolean>(false);
     const { postPerson } = useContext(PersonContext); 
@@ -77,9 +77,9 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
         name,
         cpf,
         nick,
-        gender, 
-        phone, 
-        address, 
+        gender,
+        phone,
+        address,
         observations,
         picture
     }: IFormInputs){
@@ -90,7 +90,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
 
         try{
 
-            if(!/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(cpf)){
+            if(!/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(cpf.trim())){
                 setError("cpf", {
                     message: "Invalid CPF format"
                 })
@@ -103,14 +103,16 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                 }
             }
 
+            console.log(picture[0]);
+
             const { status, response } = await postPerson({
-                name,
-                cpf,
-                nick,
-                gender, 
-                phone, 
-                address, 
-                observations
+                name: name.trim(),
+                cpf: cpf.trim(),
+                nick: nick.trim(),
+                gender: gender.trim(),
+                phone: phone.trim(),
+                address: address.trim(),
+                observations: observations.trim()           
             })
 
             if(status === 400){
@@ -133,7 +135,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                 }
             }
 
-            handleClose();
+            handleModalClose();
         }catch(error: any){
             setErrorMessage(error.message); 
             setTimeout(() =>{
@@ -144,6 +146,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
     }
 
     const handleImageChange = (e: any) =>{
+        console.log(e.target.files[0]);
         e.target.files ? setImageUrl(URL.createObjectURL(e.target.files[0])) : setImageUrl("");
     }
 
@@ -156,6 +159,13 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
         setErrorMessage(""); 
     }
 
+    const handleModalClose = () =>{
+        setErrorMessage("");
+        setImageUrl(""); 
+        setValue('picture', undefined); 
+        handleClose();
+    }
+
     return(
         <>
         <Snackbar open={!!errorMessage} autoHideDuration={6000} onClose={handleCloseSnackBar}>
@@ -165,12 +175,12 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
       </Snackbar>
         <Modal
         open={open}
-        onClose={handleClose}
+        onClose={handleModalClose}
         >
         <div className={style.addPersonModal}>
             <div className={style.closeModalSection}>
                 <IconButton aria-label="close" size="large" color="error"
-                onClick={handleClose}
+                onClick={handleModalClose}
                 >
                     <CloseRoundedIcon fontSize="medium"/>
                 </IconButton>

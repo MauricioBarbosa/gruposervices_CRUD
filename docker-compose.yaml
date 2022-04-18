@@ -16,6 +16,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
   gruposervices_frontend: 
     build: ./frontend
+    command: npm run dev 
     ports:
       - '3000:3000'
     networks:

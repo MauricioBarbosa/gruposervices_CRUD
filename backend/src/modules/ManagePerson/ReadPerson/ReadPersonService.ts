@@ -27,7 +27,7 @@ export class ReadPersonService{
 
         return persons.map(person => {
             if(person.picture){
-                person.picture.url = this.pictureUrl + '/' + person.picture.filename
+                person.picture.url = this.pictureUrl + person.picture.filename
             }
 
             return {

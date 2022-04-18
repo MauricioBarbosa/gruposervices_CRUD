@@ -46,10 +46,17 @@ describe("Testing ReadPersonControl by ID", ()=>{
         )
     })
 
-    it("Should return a person not found error", async ()=>{
-        const response = await request(app).get("/person/").send({
-            id: person.id+1
+    it("Should return invalid ID error", async ()=>{
+        const response = await request(app).get(`/person/?id=teste`)
+
+        expect(response.status).toBe(400); 
+        expect(response.body).toEqual({
+            message: "Invalid ID"
         })
+    })
+
+    it("Should return a person not found error", async ()=>{
+        const response = await request(app).get(`/person/?id=${person.id + 1}`)
 
         expect(response.status).toBe(400); 
         expect(response.body).toEqual({
@@ -58,22 +65,22 @@ describe("Testing ReadPersonControl by ID", ()=>{
     })
 
     it("Should return a person", async ()=>{
-        const response = await request(app).get("/person/").send({
-            id: person.id
-        })
+        const response = await request(app).get(`/person/?id=${person.id}`)
 
         expect(response.status).toBe(200); 
         expect(response.body).toEqual(expect.objectContaining({
                 id: person.id,
                 address: "",
                 cpf: "518.800.600-60",
-                gender: "Male", 
+                gender: "Male",
+                createdAt: expect.any(String),
+                updatedAt: expect.any(String),
                 name: "Micael Belchior Castilho",
                 nick: "Micael",
                 observations: "None",
                 phone: "(15) 3422-6322", 
                 picture: {
-                    url: appConfig.pictureUrl + '/' + picture.filename,
+                    url: appConfig.pictureUrl + picture.filename,
                     filename: '1643077746437_18223.jpg',
                     originalname: 'file.jpg',
                     person_id: person.id
@@ -141,25 +148,23 @@ describe("Testing ReadPersonControl by name", ()=>{
     })
 
     it("Should return all registered persons", async ()=>{
-        const response = await request(app).get("/person/").send({})
-
+        const response = await request(app).get("/person/");
         expect(response.status).toBe(200); 
+
+        console.log(response.body);
+
         expect(response.body).toHaveLength(persons.length);
     })
 
     it("Should return length equal 2: Persons whose name starts with B", async ()=>{
-        const response = await request(app).get("/person/").send({
-            src: "B"
-        }); 
+        const response = await request(app).get("/person/?src=B"); 
 
         expect(response.status).toBe(200); 
         expect(response.body).toHaveLength(2);
     })
 
     it("Should return persons whose name starts with B", async ()=>{
-        const response = await request(app).get("/person/").send({
-            src: "B"
-        });
+        const response = await request(app).get("/person/?src=B");
 
         expect(response.status).toBe(200); 
         expect(response.body).toEqual(
@@ -191,7 +196,7 @@ describe("Testing ReadPersonControl by name", ()=>{
                         filename: "1643077746437_18223.jpg",
                         originalname: "file.jpg",
                         person_id: expect.any(Number),
-                        url: appConfig.pictureUrl + '/' + beneditaPicture.filename
+                        url: appConfig.pictureUrl + beneditaPicture.filename
                     }
                 })
             ])

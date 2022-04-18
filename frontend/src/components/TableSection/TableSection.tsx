@@ -1,12 +1,17 @@
+import { useState } from 'react';
+
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import { deepOrange } from '@mui/material/colors';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import LinearProgress from '@mui/material/LinearProgress';
 
 import style from './style.module.scss';
 import ReadPersonData from '../../types/ReadPersonData';
+import DeletePersonAlertDialog from '../DeletePersonAlertDialog/DeletePersonAlertDialog';
+
 
 
 const columns: GridColDef[] = [
@@ -64,58 +69,73 @@ const columns: GridColDef[] = [
         sortable: false,
         filterable: false,
         renderCell: (params)=>{
-            return <IconButton aria-label="delete" size="small">
+            return <IconButton aria-label="delete" size="small" 
+            onClick={()=>{
+                params.value.setIdToDelete(params.value.id);
+                params.value.openDeleteDialogFunction(true);
+            }}>
             <DeleteIcon fontSize="inherit" />
         </IconButton>
         }
     }
 ]
 
-const rows = [
-    {
-        id: 1,
-        picture: {
-            name: "MB",
-        },
-        name: "Mauricio Barbosa Dos Santos Júnior", 
-        cpf: "442.736.598-16",
-        gender: "Male",
-        phone: "18997002172",
-        edit: "edit",
-        delete: "delete"
-    },
-    {
-        id: 2,
-        picture: {
-            name: "MB",
-            pictureData : {
-                src: "https://observatoriodocinema.uol.com.br/wp-content/uploads/2021/10/dwayne-johnson-the-rock.webp", 
-                alt: "Dwayne Johson"
-            }
-        },
-        name: "Dwayne Johnson", 
-        cpf: "442.736.598-16",
-        gender: "Male",
-        phone: "18997002172",
-        edit: "edit",
-        delete: "delete"
-    }
-    
-]
-
 type TableSectionProps = {
     personList: Array<ReadPersonData>
+    listLoading: boolean, 
+    deletePerson: (id: number) => void
 }
 
-export default function TableSection({personList}: TableSectionProps):JSX.Element{
+export default function TableSection({personList, listLoading, deletePerson}: TableSectionProps):JSX.Element{
+    
+    const [deletePersonDialogOpen, setDeletePersonDialogOpen] = useState<boolean>(false);
+    const [idToDelete, setIdtoDelete ] = useState<number>(0)
+
     return(
+        <>
+        <DeletePersonAlertDialog
+        handleClose={async (op: boolean)=>{
+            setDeletePersonDialogOpen(false)
+            if(op){
+                await deletePerson(idToDelete); 
+            }
+            setIdtoDelete(0);
+        }}
+        open={deletePersonDialogOpen}
+        />
         <div className={style.personTable}>
             <DataGrid 
+            loading={listLoading}
+            components={{
+                LoadingOverlay: LinearProgress,
+            }}
             columns={columns}
-            rows={rows}
+            rows={personList.map(person=>{
+                return {
+                    id: person.id, 
+                    picture: {
+                        name: person.name.substring(0,2).toUpperCase(), 
+                        pictureData : person.picture ? {
+                            src: person.picture.url, 
+                            alt: person.name
+                        } : null, 
+                    },
+                    name: person.name, 
+                    cpf: person.cpf, 
+                    gender: person.gender, 
+                    phone: person.phone, 
+                    edit: "edit",
+                    delete: {
+                        openDeleteDialogFunction : setDeletePersonDialogOpen,
+                        setIdToDelete: setIdtoDelete,
+                        id: +person.id
+                    }
+                }
+            })}
             pageSize={5}
             rowsPerPageOptions={[5]}
             />
         </div>
+        </>
     )
 }
