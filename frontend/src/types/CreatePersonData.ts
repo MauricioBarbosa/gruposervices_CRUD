@@ -1,4 +1,4 @@
-export default interface CreatePersonData{
+export interface CreatePersonData{
     name: string; 
     cpf: string; 
     nick: string; 

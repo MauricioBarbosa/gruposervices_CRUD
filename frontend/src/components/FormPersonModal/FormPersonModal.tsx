@@ -17,14 +17,16 @@ import { useForm, Controller } from 'react-hook-form';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 import style from './style.module.scss';
-import CreatePersonData from "../../types/CreatePersonData";
 import { PersonContext } from "../../context/PersonContext";
 import { PictureContext } from "../../context/PictureContext";
+import { PictureData, UpdatePersonData } from "../../types/UpdatePersonData";
 
 
 type FormPersonModalData = {
     open: boolean,
-    handleClose: () => void 
+    handleClose: () => void, 
+    dataToUpdate?:UpdatePersonData,
+    pictureToUpdate?:PictureData
 }
 
 type IFormInputs = {
@@ -45,15 +47,17 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-export default function FormPersonModal({open, handleClose} : FormPersonModalData):JSX.Element{
+export default function FormPersonModal({open, handleClose, dataToUpdate, pictureToUpdate} : FormPersonModalData):JSX.Element{
 
     const {register, handleSubmit, control, setError, setValue} = useForm<any>();
-    const [ imageUrl, setImageUrl ] = useState<string>("");
+    const [ imageUrl, setImageUrl ] = useState<string>(pictureToUpdate ? pictureToUpdate?.url: "");
     const [ errorMessage, setErrorMessage ] = useState<string>("");
 
     const [ loading, setLoading] = useState<boolean>(false);
-    const { postPerson } = useContext(PersonContext); 
-    const { postPicture } = useContext(PictureContext);
+    const { postPerson, putPerson } = useContext(PersonContext); 
+    const { postPicture, deletePicture, putPicture } = useContext(PictureContext);
+
+    console.log(pictureToUpdate);
 
     function checkImageSelected(){
         if(imageUrl){
@@ -145,6 +149,91 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
         setLoading(false);
     }
 
+    async function handlePutSubmit({
+        name,
+        cpf,
+        nick,
+        gender,
+        phone,
+        address,
+        observations,
+        picture
+    }: IFormInputs){
+
+        setLoading(true);
+
+        try{
+
+            if(!/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/.test(cpf.trim())){
+                setError("cpf", {
+                    message: "Invalid CPF format"
+                })
+                return; 
+            }
+    
+            if(picture[0]){
+                if(picture[0].name.length > 100){
+                    throw new Error("picture name is too long")
+                }
+            }
+
+            const updatePersonOperation = await putPerson(
+            dataToUpdate.id,
+            {
+                name: name.trim(),
+                cpf: cpf.trim(),
+                nick: nick.trim(),
+                gender: gender.trim(),
+                phone: phone.trim(),
+                address: address.trim(),
+                observations: observations.trim()           
+            })
+
+            if(updatePersonOperation.status === 400){
+                throw new Error(updatePersonOperation.response.message);
+            }
+
+            if(picture[0]){
+                const formData = new FormData(); 
+                formData.append('picture', picture[0]); 
+
+                let responsePicture; 
+
+                if(pictureToUpdate){
+                    responsePicture = await putPicture(
+                        updatePersonOperation.response.id, 
+                        formData
+                    ); 
+                }else{
+                    responsePicture = await postPicture(
+                        updatePersonOperation.response.id, 
+                        formData
+                    );
+                }
+
+                if(responsePicture.status === 400){
+                    throw new Error(responsePicture.response.message);
+                }
+            }else{
+                if(pictureToUpdate && !imageUrl){
+                    const responseDeletePicture = await deletePicture(pictureToUpdate.person_id);
+
+                    if(responseDeletePicture.status === 400){
+                        throw new Error(responseDeletePicture.response.message);
+                    }
+                }
+            }
+
+            handleModalClose();
+        }catch(error: any){
+            setErrorMessage(error.message); 
+            setTimeout(() =>{
+                setErrorMessage(""); 
+            }, 6000);
+        }
+        setLoading(false);
+    }
+
     const handleImageChange = (e: any) =>{
         console.log(e.target.files[0]);
         e.target.files ? setImageUrl(URL.createObjectURL(e.target.files[0])) : setImageUrl("");
@@ -165,6 +254,8 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
         setValue('picture', undefined); 
         handleClose();
     }
+
+    const desc = dataToUpdate?  'Alterar' : 'Cadastrar'; 
 
     return(
         <>
@@ -187,7 +278,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
             </div>
             <div className={style.outerformModalSection}>
                 <div className={style.formSection}>
-                    <form onSubmit={handleSubmit(handlePostSubmit)}>
+                    <form onSubmit={handleSubmit(dataToUpdate ? handlePutSubmit : handlePostSubmit)}>
                         <Box className={style.imageSection}>
                             {checkImageSelected()}
                             <div className={style.imageControl}>
@@ -216,7 +307,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                             <Controller
                             control={control}
                             name="name"
-                            defaultValue={""}
+                            defaultValue={dataToUpdate? dataToUpdate.name: ""}
                             rules={{
                                 required: "This field is required",
                                 minLength: {
@@ -234,6 +325,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                                 label="Nome" 
                                 variant="standard"
                                 className={style.w50}
+                                value={value}
                                 onChange={onChange}
                                 error={!!error}
                                 helperText={error ? error.message : null}
@@ -243,7 +335,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                             <Controller
                             control={control}
                             name="cpf"
-                            defaultValue={""}
+                            defaultValue={dataToUpdate? dataToUpdate.cpf : ""}
                             rules={{
                                 required: "This field is required",
                                 minLength: {
@@ -262,6 +354,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                                 variant="standard"
                                 className={style.w20}
                                 onChange={onChange}
+                                value={value}
                                 error={!!error}
                                 helperText={error ? error.message : "CPF must be in xxx.xxx.xxx-xx format"}
                                 />
@@ -277,7 +370,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                             <Controller
                             control={control}
                             name="nick"
-                            defaultValue={""}
+                            defaultValue={dataToUpdate? dataToUpdate.nick : ""}
                             rules={{
                                 maxLength: {
                                     value: 80, 
@@ -290,6 +383,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                                 label="Nickname" 
                                 variant="standard"
                                 onChange={onChange}
+                                value={value}
                                 error={!!error}
                                 helperText={error ? error.message : null }
                                 className={style.w50}
@@ -299,7 +393,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                             <Controller
                             control={control}
                             name="gender"
-                            defaultValue={""}
+                            defaultValue={dataToUpdate? dataToUpdate.gender : ""}
                             rules={{
                                 maxLength: {
                                     value: 20, 
@@ -312,6 +406,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                                 label="Gender" 
                                 variant="standard"
                                 onChange={onChange}
+                                value={value}
                                 error={!!error}
                                 helperText={error ? error.message : null }
                                 className={style.w20}
@@ -328,7 +423,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                             <Controller
                             control={control}
                             name="phone"
-                            defaultValue={""}
+                            defaultValue={dataToUpdate? dataToUpdate.phone : ""}
                             rules={{
                                 maxLength: {
                                     value: 15, 
@@ -341,6 +436,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                                 label="Phone" 
                                 variant="standard"
                                 onChange={onChange}
+                                value={value}
                                 error={!!error}
                                 helperText={error ? error.message : null }
                                 className={style.w20}
@@ -350,7 +446,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                             <Controller
                             control={control}
                             name="address"
-                            defaultValue={""}
+                            defaultValue={dataToUpdate? dataToUpdate.address : ""}
                             rules={{
                                 maxLength: {
                                     value: 80, 
@@ -363,6 +459,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                                 label="Address" 
                                 variant="standard"
                                 onChange={onChange}
+                                value={value}
                                 error={!!error}
                                 helperText={error ? error.message : null }
                                 className={style.w50}
@@ -382,7 +479,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                                 message: "Observation is too big"
                             }
                         }}
-                        defaultValue={""}
+                        defaultValue={dataToUpdate? dataToUpdate.observations : ""}
                         render={({ field: { onChange, value },fieldState:{error}}) =>(
                             <TextField 
                             id="observations" 
@@ -391,6 +488,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                             multiline
                             rows={6}
                             onChange={onChange}
+                            value={value}
                             error={!!error}
                             helperText={error ? error.message : null }
                             className={style.w95}
@@ -411,7 +509,7 @@ export default function FormPersonModal({open, handleClose} : FormPersonModalDat
                                 loading? <CircularProgress 
                                 color="inherit" 
                                 size={25}
-                                /> : 'Cadastrar'
+                                /> : desc
                             }</Button>
                         </Box>
                     </form>

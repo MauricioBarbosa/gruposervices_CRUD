@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import { deepOrange } from '@mui/material/colors';
@@ -11,8 +11,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import style from './style.module.scss';
 import ReadPersonData from '../../types/ReadPersonData';
 import DeletePersonAlertDialog from '../DeletePersonAlertDialog/DeletePersonAlertDialog';
-
-
+import { PictureData, UpdatePersonData } from '../../types/UpdatePersonData';
 
 const columns: GridColDef[] = [
     {
@@ -57,7 +56,40 @@ const columns: GridColDef[] = [
         sortable: false,
         filterable: false,
         renderCell: (params)=>{
-            return <IconButton aria-label="delete" size="small" >
+            const {
+                id,
+                name,
+                cpf,
+                nick,
+                gender,
+                phone,
+                address,
+                observations,
+                picture
+            } = params.value.personData; 
+
+            return <IconButton aria-label="delete" size="small" 
+            onClick={()=>{
+                params.value.personToUpdate({
+                    id,
+                    name,
+                    cpf,
+                    nick,
+                    gender,
+                    phone,
+                    address,
+                    observations,
+                }); 
+
+                if(picture){
+                    params.value.personPictureToUpdate({
+                        ...picture
+                    }); 
+                }
+
+                params.value.openFormPersonModal(true);
+            }}
+            >
                 <EditIcon fontSize="inherit" />
             </IconButton>
         }
@@ -83,10 +115,19 @@ const columns: GridColDef[] = [
 type TableSectionProps = {
     personList: Array<ReadPersonData>
     listLoading: boolean, 
-    deletePerson: (id: number) => void
+    deletePerson: (id: number) => void,
+    setPersonToUpdate: Dispatch<SetStateAction<UpdatePersonData | undefined>>
+    setPersonPictureToUpdate: Dispatch<SetStateAction<PictureData | undefined>>
+    setOpenFormPersonModal: Dispatch<SetStateAction<boolean>>
 }
 
-export default function TableSection({personList, listLoading, deletePerson}: TableSectionProps):JSX.Element{
+export default function TableSection({
+    personList, 
+    listLoading, 
+    deletePerson, 
+    setPersonToUpdate,
+    setPersonPictureToUpdate,
+    setOpenFormPersonModal}: TableSectionProps):JSX.Element{
     
     const [deletePersonDialogOpen, setDeletePersonDialogOpen] = useState<boolean>(false);
     const [idToDelete, setIdtoDelete ] = useState<number>(0)
@@ -124,7 +165,12 @@ export default function TableSection({personList, listLoading, deletePerson}: Ta
                     cpf: person.cpf, 
                     gender: person.gender, 
                     phone: person.phone, 
-                    edit: "edit",
+                    edit: {
+                        personData: person, 
+                        openFormPersonModal : setOpenFormPersonModal, 
+                        personToUpdate: setPersonToUpdate, 
+                        personPictureToUpdate: setPersonPictureToUpdate
+                    },
                     delete: {
                         openDeleteDialogFunction : setDeletePersonDialogOpen,
                         setIdToDelete: setIdtoDelete,

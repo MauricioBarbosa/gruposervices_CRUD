@@ -3,7 +3,7 @@ module.exports = {
   reactStrictMode: true,
   images: {
     domains: [
-      'observatoriodocinema.uol.com.br'
+      'localhost'
     ]
   },
   env: {

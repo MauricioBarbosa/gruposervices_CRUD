@@ -15,6 +15,7 @@ import { appConfig } from '../config/appConfig';
 import AxiosApiProvider from '../providers/axios/AxiosApiProvider';
 import ReadPersonData from '../types/ReadPersonData';
 import { PersonContext } from '../context/PersonContext';
+import { PictureData, UpdatePersonData } from '../types/UpdatePersonData';
 
 
 type IndexPageProps = {
@@ -35,6 +36,8 @@ const Home: NextPage = ({personListPageProps}: IndexPageProps) => {
   const [searchPerson, setSearchPerson] = useState(''); 
   const [listLoading, setListLoading] = useState(false);
   const [personList, setPersonList] = useState<Array<ReadPersonData>>(personListPageProps); 
+  const [personToUpdateData, setPersonToUpdateData] = useState<UpdatePersonData | undefined>(undefined); 
+  const [personToUpdatePicture, setPersonToUpdatePicture] = useState<PictureData | undefined>(undefined); 
   const [errorMessage, setErrorMessage] = useState('');
 
   const [openFormPersonModal, setOpenFormPersonModal] = useState(false);
@@ -103,6 +106,14 @@ const Home: NextPage = ({personListPageProps}: IndexPageProps) => {
       setPersonList([]);
     }
     setListLoading(false);
+
+    if(personToUpdateData){
+      setPersonToUpdateData(undefined); 
+    }
+
+    if(personToUpdatePicture){
+      setPersonToUpdatePicture(undefined);
+    }
   }
 
   const handleDeletePerson = async (id: number) =>{
@@ -129,13 +140,24 @@ const Home: NextPage = ({personListPageProps}: IndexPageProps) => {
         </Alert>
       </Snackbar>
       <Header />
-      <FormPersonModal handleClose={handlePersonModalClose} open={openFormPersonModal}/>
+      {
+        openFormPersonModal ? 
+        <FormPersonModal 
+      handleClose={handlePersonModalClose} 
+      open={openFormPersonModal} 
+      dataToUpdate={personToUpdateData}
+      pictureToUpdate={personToUpdatePicture}
+      /> : <></>
+      }
       <SearchSection setSearchPerson={debounced}/>
       <ControlSection openModal={handlePersonModalOpen}/>
       <TableSection 
       personList={personList} 
       listLoading={listLoading}
       deletePerson={handleDeletePerson}
+      setPersonToUpdate={setPersonToUpdateData}
+      setPersonPictureToUpdate={setPersonToUpdatePicture}
+      setOpenFormPersonModal={setOpenFormPersonModal}
       />
     </>
   )
